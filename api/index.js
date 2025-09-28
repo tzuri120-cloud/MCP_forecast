@@ -4,7 +4,7 @@ import fetch from "cross-fetch";
 const app = express();
 app.use(express.json());
 
-// Root: discovery
+// root
 app.get("/", (_req, res) => {
   res.json({
     name: "Kitesurf Forecast MCP",
@@ -64,7 +64,7 @@ app.get("/spot.forecast", async (req, res) => {
   }
 });
 
-// GET /tide.predictions?station_id=8447435&begin_date=20250928&end_date=20251001&time_zone=lst_ldt&units=metric
+// GET /tide.predictions?station_id=8447435&begin_date=20250928&end_date=20251001
 app.get("/tide.predictions", async (req, res) => {
   try {
     const { station_id, begin_date, end_date } = req.query;
@@ -93,7 +93,7 @@ app.get("/tide.predictions", async (req, res) => {
 
     const predictions = (json.predictions || []).map(p => ({
       time: p.t,
-      type: p.type, // H or L
+      type: p.type,
       height: Number(p.v)
     }));
     res.json({ station_id, begin_date, end_date, predictions });
@@ -102,4 +102,10 @@ app.get("/tide.predictions", async (req, res) => {
   }
 });
 
-export default app;
+/**
+ * IMPORTANT: Vercel expects a handler function from /api files.
+ * This wraps the Express app as the serverless function entry.
+ */
+export default function handler(req, res) {
+  return app(req, res);
+}
